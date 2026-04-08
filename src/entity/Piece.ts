@@ -33,6 +33,8 @@ export class Piece {
     @IsUrl({}, {message: 'Must be a valid URL'})
     url: string;
 
-
+    @Column({type: "varchar", length: 255, nullable: false})
+    @IsNotEmpty({message: 'youtubeID is required'})
+    youtubeID: string;
 
 }

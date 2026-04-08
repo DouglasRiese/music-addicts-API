@@ -3,7 +3,7 @@ import {Repository} from "typeorm";
 import {AppDataSource} from "../data-source";
 import {validate, ValidationError, ValidatorOptions} from "class-validator";
 import {Route} from "../decorator/Route";
-import {NextFunction, Request, Response} from "express";
+import {Request, Response} from "express";
 import {UserMelody} from "../entity/UserMelody";
 import {ResponseHandler} from "../response-handler";
 import {Piece} from "../entity/Piece";
@@ -26,7 +26,7 @@ export default class UserMelodyController {
     }
 
     @Route('get', '/:userUUID')
-    async getAll(req: Request, res: Response, next: NextFunction) {
+    async getAll(req: Request, res: Response) {
         console.log(`getting all user-melodies for ${req.params.userUUID}`)
         try {
             const melodiesList : any = await this.userMelodyRepo.findBy({userUUID: req.params.userUUID})
@@ -36,11 +36,13 @@ export default class UserMelodyController {
                 const pieceRepo = AppDataSource.getRepository(Piece);
 
                 for (let melody of melodiesList) {
-                    const piece = await pieceRepo.findOneBy({pieceUUID: melody.pieceUUID})
-                    melody.genre = piece.genre
-                    melody.name = piece.name
-                    melody.url = piece.url
-                    melody.lengthInSeconds = piece.lengthInSeconds
+                    if (melody.pieceUUID) {
+                        const piece = await pieceRepo.findOneBy({pieceUUID: melody.pieceUUID})
+                        melody.genre = piece.genre
+                        melody.name = piece.name
+                        melody.url = piece.url
+                        melody.lengthInSeconds = piece.lengthInSeconds
+                    }
                 }
                 ResponseHandler.success(res, 200, melodiesList)
                 return
@@ -53,7 +55,7 @@ export default class UserMelodyController {
 
 
     @Route('post', '/:userUUID')
-    async create(req: Request, res: Response, next: NextFunction) {
+    async create(req: Request, res: Response) {
         console.log('Adding new usermelody')
         const providedUserMelodyUUID = req.body.userMelodyUUID;
         if (providedUserMelodyUUID) {
@@ -72,7 +74,7 @@ export default class UserMelodyController {
 
         if (!violations.length) {
             const data = await this.userMelodyRepo.save(newUserMelody);
-            ResponseHandler.success(res, data, 201)
+            ResponseHandler.success(res, 201, data)
             return
         } else {
             ResponseHandler.error(res, 422, violations, 'Invalid data')
@@ -81,7 +83,7 @@ export default class UserMelodyController {
     }
 
     @Route('put', '/:userUUID/:userMelodyUUID')
-    async update(req: Request, res: Response, next: NextFunction) {
+    async update(req: Request, res: Response) {
         console.log(`Attempting to update usermelody ${req.params.userUUID}`)
 
         // Provided userUUID must match path
@@ -119,7 +121,7 @@ export default class UserMelodyController {
     }
 
     @Route('delete', '/:userUUID/:userMelodyUUID')
-    async delete(req: Request, res: Response, next: NextFunction) {
+    async delete(req: Request, res: Response) {
         const target = await this.userMelodyRepo.findOneBy({userMelodyUUID: req.params.userMelodyUUID})
         // If they don't exist return 404 not found
         if (!target) {

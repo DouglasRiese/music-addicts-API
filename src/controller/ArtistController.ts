@@ -4,12 +4,10 @@ import {Artist} from "../entity/Artist";
 import {AppDataSource} from "../data-source";
 import {validate, ValidationError, ValidatorOptions} from "class-validator";
 import {Route} from "../decorator/Route";
-import {NextFunction, Request, Response} from "express";
+import {Request, Response} from "express";
 import {ResponseHandler} from "../response-handler";
 
-let path:string = '/artist';
-
-@Controller(path)
+@Controller('/artist')
 export default class ArtistController {
     // connect to db
     artistRepo: Repository<Artist> = AppDataSource.getRepository(Artist)
@@ -26,12 +24,12 @@ export default class ArtistController {
     }
 
     @Route('get')
-    async getAll(req: Request, res: Response, next: NextFunction) {
+    async getAll(req: Request, res: Response) {
         ResponseHandler.success(res, 200, this.artistRepo.find())
     }
 
     @Route('get', '/:uuid')
-    async get(req: Request, res: Response, next: NextFunction) {
+    async get(req: Request, res: Response) {
         // get artist with uuid if they exist
         const artist = await this.artistRepo.findOneBy({artistUUID: req.params.uuid})
 
@@ -42,7 +40,7 @@ export default class ArtistController {
     }
 
     @Route('post')
-    async create(req: Request, res: Response, next: NextFunction) {
+    async create(req: Request, res: Response) {
         const providedUUID = req.body.artistUUID;
         if (providedUUID) {
             ResponseHandler.error(res, 422, null, 'artistUUID must not be provided. Please let the database generate it')
@@ -61,7 +59,7 @@ export default class ArtistController {
     }
 
     @Route('put')
-    async update(req: Request, res: Response, next: NextFunction) {
+    async update(req: Request, res: Response) {
         const providedUUID = req.body.artistUUID;
         // check if record exists
         const targetArtist:Artist = await this.artistRepo.findOneBy({artistUUID: providedUUID})
@@ -89,7 +87,7 @@ export default class ArtistController {
     }
 
     @Route('delete', '/:uuid')
-    async delete(req: Request, res: Response, next: NextFunction) {
+    async delete(req: Request, res: Response) {
         const targetArtist = await this.artistRepo.findOneBy({artistUUID: req.params.uuid})
         // If they don't exist return 404 not found
         if (!targetArtist) {

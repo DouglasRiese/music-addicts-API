@@ -4,13 +4,11 @@ import {Melody} from "../entity/Melody";
 import {AppDataSource} from "../data-source";
 import {validate, ValidationError, ValidatorOptions} from "class-validator";
 import {Route} from "../decorator/Route";
-import {NextFunction, Request, Response} from "express";
+import {Request, Response} from "express";
 import {ResponseHandler} from "../response-handler";
 import {Piece} from "../entity/Piece";
 
-let path:string = '/melody';
-
-@Controller(path)
+@Controller('/melody')
 export default class MelodyController {
     // connect to db
     melodyRepo: Repository<Melody> = AppDataSource.getRepository(Melody)
@@ -27,7 +25,7 @@ export default class MelodyController {
     }
 
     @Route('get')
-    async getAll(req: Request, res: Response, next: NextFunction) {
+    async getAll(req: Request, res: Response) {
         const data :any = await this.melodyRepo.find()
 
         if (data) {
@@ -47,7 +45,7 @@ export default class MelodyController {
     }
 
     @Route('get', '/:uuid')
-    async get(req: Request, res: Response, next: NextFunction) {
+    async get(req: Request, res: Response) {
         // get melody with uuid if they exist
         const melody = await this.melodyRepo.findOneBy({melodyUUID: req.params.uuid})
 
@@ -59,7 +57,7 @@ export default class MelodyController {
     }
 
     @Route('post')
-    async create(req: Request, res: Response, next: NextFunction) {
+    async create(req: Request, res: Response) {
         const providedUUID = req.body.melodyUUID;
         if (providedUUID) {
             ResponseHandler.error(res, 422, null, 'melodyUUID must not be provided. Please let the database generate it' )
@@ -80,7 +78,7 @@ export default class MelodyController {
     }
 
     @Route('put')
-    async update(req: Request, res: Response, next: NextFunction) {
+    async update(req: Request, res: Response) {
         const providedUUID = req.body.melodyUUID;
         // check if record exists
         const targetMelody:Melody = await this.melodyRepo.findOneBy({melodyUUID: providedUUID})
@@ -108,7 +106,7 @@ export default class MelodyController {
     }
 
     @Route('delete', '/:uuid')
-    async delete(req: Request, res: Response, next: NextFunction) {
+    async delete(req: Request, res: Response) {
         const targetMelody = await this.melodyRepo.findOneBy({melodyUUID: req.params.uuid})
         // If they don't exist return 404 not found
         if (!targetMelody) {

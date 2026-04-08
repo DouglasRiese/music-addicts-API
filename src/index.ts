@@ -84,7 +84,7 @@ AppDataSource.initialize().then(async () => {
         next(createError(404));
     })
 
-    app.use((err, req, res, next) => {
+    app.use((err, req, res) => {
         // check status
         res.status(err.status || 500)
         // split the stack and replace spaces
@@ -162,7 +162,8 @@ AppDataSource.initialize().then(async () => {
             name: 'What a Wonderful World',
             lengthInSeconds: 138,
             genre: 'Jazz',
-            url: 'https://www.youtube.com/watch?v=rBrd_3VMC3c'
+            url: 'https://www.youtube.com/watch?v=rBrd_3VMC3c',
+            youtubeID: 'rBrd_3VMC3c'
         })
     )
     await AppDataSource.manager.save(
@@ -172,7 +173,8 @@ AppDataSource.initialize().then(async () => {
             name: 'Vignette: Panacea',
             lengthInSeconds: 103,
             genre: 'Impressionism',
-            url: 'https://www.youtube.com/watch?v=sfPapxO550o'
+            url: 'https://www.youtube.com/watch?v=sfPapxO550o',
+            youtubeID: 'sfPapxO550o'
         })
     )
 
@@ -183,7 +185,8 @@ AppDataSource.initialize().then(async () => {
             name: 'Brahms - Cello Sonata No.1 in E minor, Op. 38',
             lengthInSeconds: 1513,
             genre: 'Classical',
-            url: 'https://www.youtube.com/watch?v=9XiYrzsgWto'
+            url: 'https://www.youtube.com/watch?v=9XiYrzsgWto',
+            youtubeID: '9XiYrzsgWto'
         })
     )
 

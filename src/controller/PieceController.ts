@@ -4,12 +4,10 @@ import {AppDataSource} from "../data-source";
 import {validate, ValidationError, ValidatorOptions} from "class-validator";
 import {Piece} from "../entity/Piece";
 import {Route} from "../decorator/Route";
-import {NextFunction, Request, Response} from "express";
+import {Request, Response} from "express";
 import {ResponseHandler} from "../response-handler";
 
-let path:string = '/piece';
-
-@Controller(path)
+@Controller('/piece')
 export default class PieceController {
     // connect to db
     pieceRepo: Repository<Piece> = AppDataSource.getRepository(Piece)
@@ -26,13 +24,13 @@ export default class PieceController {
     }
 
     @Route('get')
-    async getAll(req: Request, res: Response, next: NextFunction) {
+    async getAll(req: Request, res: Response) {
         const data = await this.pieceRepo.find();
         ResponseHandler.success(res, 200, data)
     }
 
     @Route('get', '/random')
-    async getRandom(req: Request, res: Response, next: NextFunction) {
+    async getRandom(req: Request, res: Response) {
         const randomPiece = await this.pieceRepo
             .createQueryBuilder('piece')
             .select()
@@ -41,8 +39,8 @@ export default class PieceController {
         ResponseHandler.success(res, 200, randomPiece)
     }
 
-    @Route('get', '/:uuid')
-    async get(req: Request, res: Response, next: NextFunction) {
+    @Route('get', '/uuid/:uuid')
+    async get(req: Request, res: Response) {
 
         // get piece with uuid if they exist
         const piece = await this.pieceRepo.findOneBy({pieceUUID: req.params.uuid})
@@ -54,8 +52,21 @@ export default class PieceController {
         ResponseHandler.success(res, 200, piece)
     }
 
+    @Route('get', '/youtube/:youtubeID')
+    async getYoutubeID(req: Request, res: Response) {
+
+        // get piece with youtubeID if they exist
+        const piece = await this.pieceRepo.findOneBy({youtubeID: req.params.youtubeID})
+
+        if (!piece) {
+            ResponseHandler.error(res, 404, null, 'piece not found')
+            return
+        }
+        ResponseHandler.success(res, 200, piece)
+    }
+
     @Route('post')
-    async create(req: Request, res: Response, next: NextFunction) {
+    async create(req: Request, res: Response) {
         const providedUUID = req.body.pieceUUID;
         if (providedUUID) {
             ResponseHandler.error(res, 422, null, 'pieceUUID must not be provided. Please let the database generate it' )
@@ -76,7 +87,7 @@ export default class PieceController {
     }
 
     @Route('put')
-    async update(req: Request, res: Response, next: NextFunction) {
+    async update(req: Request, res: Response) {
 
         const providedUUID = req.body.pieceUUID;
         // check if record exists
@@ -105,7 +116,7 @@ export default class PieceController {
     }
 
     @Route('delete', '/:uuid')
-    async delete(req: Request, res: Response, next: NextFunction) {
+    async delete(req: Request, res: Response) {
 
         const targetPiece = await this.pieceRepo.findOneBy({pieceUUID: req.params.uuid})
         // If they don't exist throw error
