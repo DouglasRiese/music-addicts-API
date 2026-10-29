@@ -20,10 +20,19 @@ import UserMelodyController from "./controller/UserMelodyController";
 // cors stuff
 const corsOptions = {
     credentials: true, // allow cookies on a fetch
-    origin: /localhost:\d{4,5}$/i,
-    allowHeaders: "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-    methods: "GET,POST,PUT,DELETE,OPTIONS"
-}
+    origin: [
+        /^http:\/\/localhost:\d{4,5}$/i,
+        "https://music-addicts.douglasriese.ca"
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+        "Origin",
+        "X-Requested-With",
+        "Content-Type",
+        "Accept",
+        "Authorization"
+    ]
+};
 
 
 AppDataSource.initialize().then(async () => {
